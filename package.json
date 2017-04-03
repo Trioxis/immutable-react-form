@@ -1,0 +1,24 @@
+{
+  "name": "immutable-react-form",
+  "version": "1.0.0",
+  "description": "Immutable form state management for ReactJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Trioxis/immutable-react-form.git"
+  },
+  "keywords": [
+    "react",
+    "form",
+    "immutable"
+  ],
+  "author": "Trioxis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Trioxis/immutable-react-form/issues"
+  },
+  "homepage": "https://github.com/Trioxis/immutable-react-form#readme"
+}
