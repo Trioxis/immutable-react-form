@@ -1,5 +1,5 @@
 {
-  "name": "immutable-react-form",
+  "name": "@trioxis/immutable-react-form",
   "version": "0.0.1",
   "description": "Immutable form state management for ReactJS",
   "main": "dist/immutable-react-form.js",
