@@ -1,6 +1,6 @@
 {
   "name": "@trioxis/immutable-react-form",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Immutable form state management for ReactJS",
   "main": "dist/immutable-react-form.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "test-browser": "gulp test-browser",
     "watch": "gulp watch",
     "build": "gulp build",
-    "coverage": "gulp coverage"
+    "coverage": "gulp coverage",
+    "prepublish":"npm run build"
   },
   "repository": {
     "type": "git",
