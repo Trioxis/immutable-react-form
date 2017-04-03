@@ -2,11 +2,12 @@
 
 Immutable form state management for ReactJS
 
-[![Travis build status](http://img.shields.io/travis/trioxis/immutable-react-form.svg?style=flat)](https://travis-ci.org/trioxis/immutable-react-form)
-[![Code Climate](https://codeclimate.com/github/trioxis/immutable-react-form/badges/gpa.svg)](https://codeclimate.com/github/trioxis/immutable-react-form)
-[![Test Coverage](https://codeclimate.com/github/trioxis/immutable-react-form/badges/coverage.svg)](https://codeclimate.com/github/trioxis/immutable-react-form)
 [![Dependency Status](https://david-dm.org/trioxis/immutable-react-form.svg)](https://david-dm.org/trioxis/immutable-react-form)
 [![devDependency Status](https://david-dm.org/trioxis/immutable-react-form/dev-status.svg)](https://david-dm.org/trioxis/immutable-react-form#info=devDependencies)
+
+```bash
+npm i --save @trioxis/immutable-react-form
+```
 
 ## Usage
 
@@ -14,24 +15,32 @@ Immutable form is a Higher Order Component (HOC), used like so:
 
 ```js
 import React from 'react';
-import {LocalStateForm} from './ImmutableForm2'; // ** Location will differ **
+import { LocalStateForm } from '@trioxis/immutable-react-form';
 import { Map } from 'immutable';
 
 function MyForm(props){
-  const {form} = props;
-  return <form onSubmit={submission.submit}>
+  const {
+    form
+  } = props;
+  return <form onSubmit={form.submission.submit}>
     <input
       type='text'
-      value={model.get('name')}
-      onChange={(e)=>update(model.set('name',e.target.value))}
+      value={form.model.get('name')}
+      onChange={(e)=>update(form.model.set('name',e.target.value))}
     />
   </form>
 }
 
 LocalStateForm(
+  // A function which takes props, and returns the form's model
   props => ({name: ''}),
+
+  // The validation function. See Validation below for details
+  //   This is a simple default
   () => new Map({}),
-  (model, originalProps) => Promise.resolve()
+
+  // The submission function. Should return a promise
+  (model, props) => Promise.resolve()
 )(
   MyForm
 )
