@@ -1,6 +1,6 @@
 {
   "name": "@trioxis/immutable-react-form",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Immutable form state management for ReactJS",
   "main": "dist/immutable-react-form.js",
   "scripts": {
