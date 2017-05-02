@@ -31,6 +31,6 @@ function ExampleOne(props){
 
 export default LocalStateForm(
   props => (formData),
-  () => new Map({}),
+  null,
   (model, props) => console.log('Submitted!')
 )(ExampleOne);

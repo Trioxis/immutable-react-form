@@ -2,8 +2,17 @@ import React from 'react';
 import curry from 'lodash/curry';
 import { fromJS, is, List, Map } from 'immutable';
 
-const setupForm = curry((updateModel,data,original,validate)=>{
-  const validationData = validate(data) || new Map();
+import { Subject } from 'rxjs/Subject'
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/add/observable/from';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/scan';
+import 'rxjs/add/operator/let';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/mergeMap';
+
+
+const setupForm = curry((updateModel,data,original,validationData)=>{
   return {
     // Core API
     update:updateModel,
@@ -13,7 +22,7 @@ const setupForm = curry((updateModel,data,original,validate)=>{
     },
     validation:{
       get:(key)=>validationData.get(key,{
-        valid:true,
+        status:'VALID',
         message:''
       }),
       isValid:validationData.size === 0,
@@ -29,19 +38,54 @@ const setupForm = curry((updateModel,data,original,validate)=>{
   }
 });
 
-export const LocalStateForm = curry((getForm,validate,submitFn,InputComponent)=>{
+type ValidationResult = {
+  field:string, // pointer to field
+  status:'VALID' | 'INVALID',
+  message?:string // Required when INVALID
+}
+
+export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputComponent)=>{
   return class extends React.Component{
     constructor(props){
       super(props);
+
+      this.formUpdateObservable = new Subject();
+
       this.state = {
         model:fromJS(getForm(props)),
         submitting:false,
-        lastSubmissionSuccessful:null
+        lastSubmissionSuccessful:null,
+        validationData:new Map()
       }
+      if(validationOperator){
+        this.formUpdateObservable
+        .mergeMap(model=>Observable
+          .from(Array.from(model.keys()))
+          .do(console.log)
+          .map(field=>({
+            model,
+            field
+          }))
+        )
+        .let(validationOperator)
+        .do(console.log)
+        .scan((acc,res:ValidationResult)=>
+          acc.set(
+            res.field,
+            {
+              message:res.status != 'VALID' ? res.message : null,
+              status:res.status
+            }
+          )
+        ,new Map())
+        .do(r=>console.log(r.toJSON()))
+        .subscribe(validationData => this.setState({validationData}))
+      }
+      this.formUpdateObservable.subscribe(model=>this.setState({model}))
     }
 
     updateForm(model){
-      this.setState({model})
+      this.formUpdateObservable.next(model)
     }
 
     async submit(e){
@@ -73,7 +117,7 @@ export const LocalStateForm = curry((getForm,validate,submitFn,InputComponent)=>
           this.updateForm.bind(this),
           this.state.model,
           fromJS(getForm(this.props)),
-          validate,
+          this.state.validationData,
           submitFn
         ),
         {

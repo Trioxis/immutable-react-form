@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import ExampleOne from './exampleOne';
 import ExampleTwo from './exampleTwo';
 import ExampleThree from './exampleThree';
+import ExampleValidation from './exampleValidation';
 
 function MainComponent(props){
   return <div>
@@ -22,6 +23,7 @@ function MainComponent(props){
     <ExampleOne />
     <ExampleTwo />
     <ExampleThree />
+    <ExampleValidation />
   </div>
 }
 

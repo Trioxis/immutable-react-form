@@ -78,7 +78,7 @@ function ExampleThree(props){
 
 export default LocalStateForm(
   props => (formData),
-  () => new Map({}),
+  null,
   (model, props) => {
     formData = model.toJS()
   }
