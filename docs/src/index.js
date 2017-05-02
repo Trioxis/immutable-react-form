@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import ExampleOne from './exampleOne';
 import ExampleTwo from './exampleTwo';
+import ExampleThree from './exampleThree';
 
 function MainComponent(props){
   return <div>
@@ -20,6 +21,7 @@ function MainComponent(props){
     </ul>
     <ExampleOne />
     <ExampleTwo />
+    <ExampleThree />
   </div>
 }
 
