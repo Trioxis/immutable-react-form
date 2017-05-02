@@ -1,6 +1,6 @@
 import React from 'react';
 import curry from 'lodash/curry';
-import { fromJS, is, List, Map } from 'immutable';
+import { fromJS, is, List, Map, isCollection } from 'immutable';
 
 import { Subject } from 'rxjs/Subject'
 import { Observable } from 'rxjs/Observable'
@@ -60,15 +60,14 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
       if(validationOperator){
         this.formUpdateObservable
         .mergeMap(model=>Observable
-          .from(Array.from(model.keys()))
-          .do(console.log)
+          .from(deepRetrieveKeys(model))
+          // .do(console.log)
           .map(field=>({
             model,
             field
           }))
         )
         .let(validationOperator)
-        .do(console.log)
         .scan((acc,res:ValidationResult)=>
           acc.set(
             res.field,
@@ -136,3 +135,15 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
     }
   }
 })
+
+function deepRetrieveKeys(collection,parentName){
+  console.log('deepRetrieveKeys',Array.from(collection.entries()))
+  const thisColKeys = Array.from(collection.keys())
+  .map(k=>parentName ? parentName+'.'+k : k);
+
+  return Array.from(collection.entries())
+  .filter(([key,val])=>isCollection(val))
+  .map(([key,val])=>deepRetrieveKeys(val,parentName ? parentName+'.'+key : key))
+  .reduce((a,b)=>a.concat(b),[])
+  .concat(thisColKeys);
+}

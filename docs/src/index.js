@@ -5,6 +5,7 @@ import ExampleOne from './exampleOne';
 import ExampleTwo from './exampleTwo';
 import ExampleThree from './exampleThree';
 import ExampleValidation from './exampleValidation';
+import ExampleValidationTwo from './exampleValidationTwo';
 
 function MainComponent(props){
   return <div>
@@ -24,6 +25,7 @@ function MainComponent(props){
     <ExampleTwo />
     <ExampleThree />
     <ExampleValidation />
+    <ExampleValidationTwo />
   </div>
 }
 

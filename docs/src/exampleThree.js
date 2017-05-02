@@ -11,7 +11,7 @@ let formData = {
 
 const animalTypes = ['Dog','Cat','Kangaroo'];
 
-function ExampleThree(props){
+export function Example(props){
   const {form} = props;
   return <div>
     <h2>
@@ -73,6 +73,7 @@ function ExampleThree(props){
           Another pet!
       </button>
     </form>
+    {JSON.stringify(form.validation)}
   </div>
 }
 
@@ -82,4 +83,4 @@ export default LocalStateForm(
   (model, props) => {
     formData = model.toJS()
   }
-)(ExampleThree);
+)(Example);
