@@ -13,7 +13,7 @@ function ExampleTwo(props){
     <h2>
       Form submission
     </h2>
-    <form onSubmit={form.submit}>
+    <form onSubmit={form.submission.submit}>
       <label>
         Name
       </label>

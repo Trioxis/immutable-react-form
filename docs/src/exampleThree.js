@@ -17,7 +17,7 @@ function ExampleThree(props){
     <h2>
       Complex form data
     </h2>
-    <form onSubmit={form.submit}>
+    <form onSubmit={form.submission.submit}>
       {
         form.model.get('myPets')
         .map((pet,i)=>
