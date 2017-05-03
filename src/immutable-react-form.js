@@ -10,6 +10,7 @@ import 'rxjs/add/operator/scan';
 import 'rxjs/add/operator/let';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/pairwise';
 
 
 const setupForm = curry((updateModel,data,original,validationData)=>{
@@ -59,11 +60,11 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
       }
       if(validationOperator){
         this.formUpdateObservable
-        .mergeMap(model=>Observable
-          .from(deepRetrieveKeys(model))
-          // .do(console.log)
+        .pairwise()
+        .mergeMap(([prevModel,nextModel])=>Observable
+          .from(diffModels(prevModel,nextModel))
           .map(field=>({
-            model,
+            model:nextModel,
             field
           }))
         )
@@ -77,7 +78,6 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
             }
           )
         ,new Map())
-        .do(r=>console.log(r.toJSON()))
         .subscribe(validationData => this.setState({validationData}))
       }
       this.formUpdateObservable.subscribe(model=>this.setState({model}))
@@ -136,8 +136,27 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
   }
 })
 
+function diffModels(prevModel,nextModel,currentPath){
+  const calcPath = (key)=>(currentPath ? currentPath+'.'+key : key)
+
+  const diffedRoot = nextModel.filter((val,key)=>{
+    return !is(prevModel.get(key),val);
+  });
+
+
+  return diffedRoot
+  .filter((val,key)=>isCollection(val))
+  .map((val,key)=>{
+    return diffModels(prevModel.get(key),nextModel.get(key),calcPath(key));
+  })
+  .reduce((a,b)=>a.concat(b),[])
+  .concat(
+    Array.from(diffedRoot.keys())
+    .map(calcPath)
+  );
+}
+
 function deepRetrieveKeys(collection,parentName){
-  console.log('deepRetrieveKeys',Array.from(collection.entries()))
   const thisColKeys = Array.from(collection.keys())
   .map(k=>parentName ? parentName+'.'+k : k);
 
