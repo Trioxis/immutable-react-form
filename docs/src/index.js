@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import ExampleOne from './exampleOne';
+import s from './style.css';
+
+import BasicFormExample from './examples/basicForm';
+import BasicFormExampleCode from '!raw-loader!./examples/basicForm.js';
 import ExampleTwo from './exampleTwo';
 import ExampleThree from './exampleThree';
 import ExampleValidation from './exampleValidation';
@@ -21,7 +24,13 @@ function MainComponent(props){
       <li>Immutable form data</li>
       <li>HOC, not components</li>
     </ul>
-    <ExampleOne />
+
+    <ExampleHolster code={BasicFormExampleCode}>
+      <h2>
+        Simple state management
+      </h2>
+      <BasicFormExample />
+    </ExampleHolster>
     <ExampleTwo />
     <ExampleThree />
     <ExampleValidation />
@@ -33,3 +42,14 @@ ReactDOM.render(
   <MainComponent />,
   document.getElementById('root')
 );
+
+function ExampleHolster(props){
+  return <div className={s.codeHoster}>
+    <div className={s.codeHosterDocs}>
+      {props.children}
+    </div>
+    <div className={s.codeHosterCode}>
+      <pre>{props.code}</pre>
+    </div>
+  </div>
+}

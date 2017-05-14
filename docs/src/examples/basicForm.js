@@ -7,12 +7,9 @@ const formData = {
 }
 
 
-function ExampleOne(props){
+function Example(props){
   const {form} = props;
   return <div>
-    <h2>
-      Simple state management
-    </h2>
     <label>
       Name
     </label>
@@ -33,4 +30,4 @@ export default LocalStateForm(
   props => (formData),
   null,
   (model, props) => console.log('Submitted!')
-)(ExampleOne);
+)(Example);
