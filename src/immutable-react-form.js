@@ -51,6 +51,7 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
       super(props);
 
       this.formUpdateObservable = new Subject();
+      this.validateFieldObservable = new Subject();
 
       this.state = {
         model:fromJS(getForm(props)),
@@ -59,15 +60,7 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
         validationData:new Map()
       }
       if(validationOperator){
-        this.formUpdateObservable
-        .pairwise()
-        .mergeMap(([prevModel,nextModel])=>Observable
-          .from(diffModels(prevModel,nextModel))
-          .map(field=>({
-            model:nextModel,
-            field
-          }))
-        )
+        this.validateFieldObservable
         .let(validationOperator)
         .scan((acc,res:ValidationResult)=>
           acc.set(
@@ -79,6 +72,18 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
           )
         ,new Map())
         .subscribe(validationData => this.setState({validationData}))
+
+        this.formUpdateObservable
+        .pairwise()
+        .mergeMap(([prevModel,nextModel])=>Observable
+          .from(diffModels(prevModel,nextModel))
+          .map(field=>({
+            model:nextModel,
+            field
+          }))
+        )
+        .subscribe(this.validateFieldObservable)
+
       }
       this.formUpdateObservable.subscribe(model=>this.setState({model}))
     }
@@ -89,7 +94,18 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
 
     async submit(e){
       e.preventDefault();
+      // First, force validation on all keys
+      Observable.from(deepRetrieveKeys(this.state.model))
+      .map(field=>({
+        model:this.state.model,
+        field
+      }))
+      .subscribe(this.validateFieldObservable);
+
+      // If valid, update state to indicate form is submitting
       this.setState({submitting:true});
+
+      // Perform submission
       try{
         await submitFn(this.state.model, this.props);
         this.setState({
@@ -156,7 +172,7 @@ function diffModels(prevModel,nextModel,currentPath){
   );
 }
 
-function deepRetrieveKeys(collection,parentName){
+function deepRetrieveKeys(collection,parentName):Array<string>{
   const thisColKeys = Array.from(collection.keys())
   .map(k=>parentName ? parentName+'.'+k : k);
 
