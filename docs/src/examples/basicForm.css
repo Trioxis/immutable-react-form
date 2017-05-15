@@ -1,0 +1,26 @@
+.formPaper{
+  padding:1em;
+  box-sizing: border-box;
+  margin-bottom: 1em;
+}
+
+.cart{
+  padding:1em;
+  box-sizing: border-box;
+  margin-bottom: 2em;
+  margin-top:2em;
+}
+.cartAddButton{
+  margin-bottom:-30px;
+}
+.cartItem{
+  width: 100%;
+  padding: 0.5em;
+
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+}
+.cartItemName{
+  flex: 1 0 auto;
+}
