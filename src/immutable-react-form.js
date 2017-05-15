@@ -3,7 +3,7 @@ import curry from 'lodash/curry';
 import { fromJS, is, List, Map, isCollection } from 'immutable';
 
 import { Subject } from 'rxjs/Subject'
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/scan';
@@ -11,7 +11,14 @@ import 'rxjs/add/operator/let';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/pairwise';
+import 'rxjs/add/operator/catch';
 
+
+// Validation only
+import 'rxjs/add/operator/groupBy';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/empty';
 
 const setupForm = curry((updateModel,data,original,validationData)=>{
   return {
@@ -62,6 +69,7 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
       if(validationOperator){
         this.validateFieldObservable
         .let(validationOperator)
+        .catch(console.error)
         .scan((acc,res:ValidationResult)=>
           acc.set(
             res.field,
@@ -181,4 +189,30 @@ function deepRetrieveKeys(collection,parentName):Array<string>{
   .map(([key,val])=>deepRetrieveKeys(val,parentName ? parentName+'.'+key : key))
   .reduce((a,b)=>a.concat(b),[])
   .concat(thisColKeys);
+}
+
+
+export function SimpleValidation(config){
+  return (source)=>source
+  .groupBy(valItem=>valItem.field)
+  .mergeMap(obs=>{
+    const configItem = config[obs.key];
+    if(configItem){
+      return obs
+      .debounceTime(500)
+      .switchMap(async valItem=>{
+        const value = valItem.model.getIn(valItem.field.split('.'))
+        const res = await configItem({
+          value
+        });
+        console.log(res)
+        return {
+          ...res,
+          field:valItem.field
+        }
+      })
+    }else{
+      return Observable.empty()
+    }
+  })
 }

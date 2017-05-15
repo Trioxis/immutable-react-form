@@ -15,6 +15,7 @@
     "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.4.0",
     "babel-preset-stage-3": "^6.24.1",
+    "immutable": "^4.0.0-rc.2",
     "css-loader": "^0.28.1",
     "material-ui": "^0.18.1",
     "raw-loader": "^0.5.1",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LocalStateForm } from 'immutable-react-form';
+import { LocalStateForm, SimpleValidation } from 'immutable-react-form';
 import { Map } from 'immutable';
 
 import MUITextField from 'material-ui/TextField';
@@ -100,13 +100,33 @@ function Example(props){
     <MUIPaper className={s.formPaper}>
       <h3>Raw Data</h3>
       {JSON.stringify(model)}
+      <h3>Validation Data</h3>
+      {JSON.stringify(form.validation)}
     </MUIPaper>
   </div>
 }
 
+function validationConfig(){
+  return{
+    'user.shippingAddress':(valItem)=>{
+      if(valItem.value.length < 10){
+        return {
+          status:'INVALID',
+          message:'Too short'
+        }
+      }else{
+        return {
+          status:'VALID'
+        }
+      }
+    },
+    'user.username':CheckUsernameIsAvailable
+  }
+}
+
 export default LocalStateForm(
   props => (formData),
-  null,
+  SimpleValidation(validationConfig()),
   (model, props) => {
     formData = model.toJS()
   }
@@ -143,11 +163,16 @@ function TextField(props){
     ...remainingProps
   } = props;
 
+  const fieldValidationInfo = form.validation.get(field)
+
   return <MUITextField
     {...remainingProps}
     value={form.model.getIn(field.split('.'))}
     onChange={(e)=>
       form.update(form.model.setIn(field.split('.'),e.target.value))
+    }
+    errorText={
+      (fieldValidationInfo.status !== 'VALID') ? fieldValidationInfo.message : null
     }
   />
 }
@@ -164,4 +189,22 @@ function GetStockNames(){
 
 function NewCartItem(){
   return new Map({item:'',quantity:1});
+}
+
+function CheckUsernameIsAvailable({value}){
+  return new Promise((res,rej)=>{
+    setTimeout(()=>{
+      if(value.match(/^.*\d.*$/) !== null){
+        res({
+          status:'VALID'
+        });
+      }else{
+        res({
+          status:'INVALID',
+          message:'Username should contain a number'
+        })
+      }
+
+    }, 3000);
+  })
 }
