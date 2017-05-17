@@ -37,9 +37,6 @@ const setupForm = curry((updateModel,data,original,validationData)=>{
       toJSON:()=>validationData.toJSON()
     },
 
-    // For easy debugging
-    toJSON:()=>data.toJSON(),
-
     // Helpers
     set:(key,val)=>updateModel(data.set(key,val)),
     setIn:(key,val)=>updateModel(data.setIn(key,val)),

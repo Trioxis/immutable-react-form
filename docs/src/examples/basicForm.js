@@ -92,16 +92,19 @@ function Example(props){
 
         <MUIFlatButton
           primary
-          onClick={form.submission.submit}>
+          onClick={form.submission.submit}
+          disabled={(
+            !form.meta.dirty ||
+            !form.validation.isValid ||
+            form.submission.loading
+          )}>
           Continue to "Payment"
         </MUIFlatButton>
       </form>
     </MUIPaper>
     <MUIPaper className={s.formPaper}>
-      <h3>Raw Data</h3>
-      {JSON.stringify(model)}
-      <h3>Validation Data</h3>
-      {JSON.stringify(form.validation)}
+      <h3>Form property</h3>
+      <pre>{JSON.stringify(form,null,'  ')}</pre>
     </MUIPaper>
   </div>
 }
