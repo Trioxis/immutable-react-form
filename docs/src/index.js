@@ -8,11 +8,6 @@ import s from './style.css';
 
 import BasicFormExample from './examples/basicForm';
 import BasicFormExampleCode from '!raw-loader!./examples/basicForm.js';
-import ExampleTwo from './exampleTwo';
-import ExampleThree from './exampleThree';
-import ExampleValidation from './exampleValidation';
-import ExampleValidationTwo from './exampleValidationTwo';
-
 
 injectTapEventPlugin();
 
@@ -50,10 +45,6 @@ function Docs(props){
         </ul>
         <BasicFormExample />
       </ExampleHolster>
-      <ExampleTwo />
-      <ExampleThree />
-      <ExampleValidation />
-      <ExampleValidationTwo />
     </div>
   </MuiThemeProvider>
 }
