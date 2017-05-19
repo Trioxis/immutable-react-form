@@ -18,7 +18,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/groupBy';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/observable/empty';
+import 'rxjs/add/observable/of';
 
 const setupForm = curry((updateModel,data,original,validationData)=>{
   return {
@@ -99,34 +99,45 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
 
     async submit(e){
       e.preventDefault();
-      // First, force validation on all keys
-      Observable.from(deepRetrieveKeys(this.state.model))
-      .map(field=>({
-        model:this.state.model,
-        field
-      }))
-      .subscribe(this.validateFieldObservable);
+      const {validationData} = this.state;
 
-      // If valid, update state to indicate form is submitting
-      this.setState({submitting:true});
+      const allFields = deepRetrieveKeys(this.state.model);
+      const validatedFields = validationData.keySeq().toJS();
+      const unvalidatedFields = allFields.filter(field=>!validatedFields.includes(field));
+      const invalidFields = validationData.filter(item=>item.status === 'INVALID');
 
-      // Perform submission
-      try{
-        await submitFn(this.state.model, this.props);
-        this.setState({
-          submitting:false,
-          lastSubmission:{
-            success:true
-          }
-        });
-      }catch(e){
-        this.setState({
-          submitting:false,
-          lastSubmission:{
-            success:false,
-            error:e
-          }
-        });
+      console.log(unvalidatedFields.length +' '+ invalidFields.size)
+      // All fields are validated and valid
+      if(unvalidatedFields.length === 0 && invalidFields.size === 0){
+        // Mark as submitting
+        this.setState({submitting:true});
+
+        // Perform submission
+        try{
+          await submitFn(this.state.model, this.props);
+          this.setState({
+            submitting:false,
+            lastSubmission:{
+              success:true
+            }
+          });
+        }catch(e){
+          this.setState({
+            submitting:false,
+            lastSubmission:{
+              success:false,
+              error:e
+            }
+          });
+        }
+      }else{
+        // Validate all unvalidated fields
+        Observable.from(unvalidatedFields)
+        .map(field=>({
+          model:this.state.model,
+          field
+        }))
+        .subscribe(this.validateFieldObservable);
       }
     }
 
@@ -209,7 +220,10 @@ export function SimpleValidation(config){
         }
       })
     }else{
-      return Observable.empty()
+      return obs.map(valItem=>({
+        status:'VALID',
+        field:valItem.field
+      }))
     }
   })
 }

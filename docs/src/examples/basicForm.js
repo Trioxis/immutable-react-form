@@ -93,11 +93,12 @@ function Example(props){
         <MUIFlatButton
           primary
           onClick={form.submission.submit}
-          disabled={(
-            !form.meta.dirty ||
-            !form.validation.isValid ||
-            form.submission.loading
-          )}>
+          // disabled={(
+          //   !form.meta.dirty ||
+          //   !form.validation.isValid ||
+          //   form.submission.loading
+          // )}
+          >
           Continue to "Payment"
         </MUIFlatButton>
       </form>
@@ -127,12 +128,16 @@ function validationConfig(){
   }
 }
 
+function submit(model,props){
+  alert('The form is now submitting :)')
+  formData = model.toJS()
+  return new Promise((res)=>setTimeout(res,3000));
+}
+
 export default LocalStateForm(
   props => (formData),
   SimpleValidation(validationConfig()),
-  (model, props) => {
-    formData = model.toJS()
-  }
+  submit
 )(Example);
 
 function CartItem(props){
