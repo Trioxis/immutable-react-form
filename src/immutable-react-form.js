@@ -12,12 +12,17 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/pairwise';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/publish';
 
 
 // Validation only
 import 'rxjs/add/operator/groupBy';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/takeWhile';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/delay';
 import 'rxjs/add/observable/of';
 
 const setupForm = curry((updateModel,data,original,validationData)=>{
@@ -64,7 +69,7 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
         validationData:new Map()
       }
       if(validationOperator){
-        this.validateFieldObservable
+        this.validatedFields = this.validateFieldObservable
         .let(validationOperator)
         .catch(console.error)
         .scan((acc,res:ValidationResult)=>
@@ -76,7 +81,12 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
             }
           )
         ,new Map())
+        .publish()
+
+        this.validatedFields
         .subscribe(validationData => this.setState({validationData}))
+
+        this.validatedFields.connect();
 
         this.formUpdateObservable
         .pairwise()
@@ -98,7 +108,9 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
     }
 
     async submit(e){
-      e.preventDefault();
+      if(e){
+        e.preventDefault();
+      }
       const {validationData} = this.state;
 
       const allFields = deepRetrieveKeys(this.state.model);
@@ -107,8 +119,18 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
       const invalidFields = validationData.filter(item=>item.status === 'INVALID');
 
       console.log(unvalidatedFields.length +' '+ invalidFields.size)
-      // All fields are validated and valid
-      if(unvalidatedFields.length === 0 && invalidFields.size === 0){
+
+      if(invalidFields.size > 0){
+        console.warn('Form submission attempted with invalid fields')
+        this.setState({
+          submitting:false,
+          lastSubmission:{
+            success:false,
+            error:new Error('Some fields are invalid')
+          }
+        });
+        return;
+      } else if(unvalidatedFields.length === 0){
         // Mark as submitting
         this.setState({submitting:true});
 
@@ -131,13 +153,29 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
           });
         }
       }else{
+        // We're about to validate all unvalidated fields
+        // So everything becomes valid, then we should submit
+        this.validatedFields
+        .debounceTime(10)
+        .do(d=> console.log('validatedFields',d.toJSON()))
+        .takeWhile(newValidationData=>!newValidationData.some(item=>item.status === 'INVALID'))
+        .filter(newValidationData =>{
+          const newValidatedFields = newValidationData.keySeq().toJS();
+          const stillUnvalidatedFields = allFields.filter(field=>!newValidatedFields.includes(field))
+          return stillUnvalidatedFields.length === 0;
+        })
+        .take(1)
+        // Delay for React to SetState properly
+        .delay(20)
+        .subscribe(()=>this.submit())
+
         // Validate all unvalidated fields
         Observable.from(unvalidatedFields)
         .map(field=>({
           model:this.state.model,
           field
         }))
-        .subscribe(this.validateFieldObservable);
+        .subscribe(d=>this.validateFieldObservable.next(d));
       }
     }
 
@@ -213,7 +251,7 @@ export function SimpleValidation(config){
         const res = await configItem({
           value
         });
-        console.log(res)
+
         return {
           ...res,
           field:valItem.field
