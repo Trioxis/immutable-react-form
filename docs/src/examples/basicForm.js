@@ -93,11 +93,11 @@ function Example(props){
         <MUIFlatButton
           primary
           onClick={form.submission.submit}
-          // disabled={(
-          //   !form.meta.dirty ||
-          //   !form.validation.isValid ||
-          //   form.submission.loading
-          // )}
+          disabled={(
+            !form.meta.dirty ||
+            !form.validation.isValid ||
+            form.submission.loading
+          )}
           >
           Continue to "Payment"
         </MUIFlatButton>
@@ -179,8 +179,10 @@ function TextField(props){
     onChange={(e)=>
       form.update(form.model.setIn(field.split('.'),e.target.value))
     }
-    errorText={
-      (fieldValidationInfo.status !== 'VALID') ? fieldValidationInfo.message : null
+    errorText={({
+      INVALID:fieldValidationInfo.message,
+      PENDING:'...'
+    })[fieldValidationInfo.status]
     }
   />
 }

@@ -24,6 +24,7 @@ import 'rxjs/add/operator/takeWhile';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/merge';
 
 const setupForm = curry((updateModel,data,original,validationData)=>{
   return {
@@ -38,8 +39,8 @@ const setupForm = curry((updateModel,data,original,validationData)=>{
         status:'VALID',
         message:''
       }),
-      isValid:validationData.size === 0,
-      toJSON:()=>validationData.toJSON()
+      isValid:validationData.every(item=>item.status === 'VALID'),
+      data:validationData
     },
 
     // Helpers
@@ -157,17 +158,21 @@ export const LocalStateForm = curry((getForm,validationOperator,submitFn,InputCo
         // So everything becomes valid, then we should submit
         this.validatedFields
         .debounceTime(10)
-        .do(d=> console.log('validatedFields',d.toJSON()))
         .takeWhile(newValidationData=>!newValidationData.some(item=>item.status === 'INVALID'))
         .filter(newValidationData =>{
-          const newValidatedFields = newValidationData.keySeq().toJS();
+          const newValidatedFields = newValidationData
+            .filter(item=>item.status === 'VALID')
+            .keySeq().toJS();
           const stillUnvalidatedFields = allFields.filter(field=>!newValidatedFields.includes(field))
           return stillUnvalidatedFields.length === 0;
         })
         .take(1)
         // Delay for React to SetState properly
         .delay(20)
+        .do(()=>console.log('Resubmitting...'))
         .subscribe(()=>this.submit())
+
+        console.log('Form validating...')
 
         // Validate all unvalidated fields
         Observable.from(unvalidatedFields)
@@ -244,19 +249,25 @@ export function SimpleValidation(config){
   .mergeMap(obs=>{
     const configItem = config[obs.key];
     if(configItem){
-      return obs
-      .debounceTime(500)
-      .switchMap(async valItem=>{
-        const value = valItem.model.getIn(valItem.field.split('.'))
-        const res = await configItem({
-          value
-        });
-
-        return {
-          ...res,
+      return Observable.merge(
+        obs.map(valItem=>({
+          status:'PENDING',
           field:valItem.field
-        }
-      })
+        })),
+        obs
+        .debounceTime(500)
+        .switchMap(async valItem=>{
+          const value = valItem.model.getIn(valItem.field.split('.'))
+          const res = await configItem({
+            value
+          });
+
+          return {
+            ...res,
+            field:valItem.field
+          }
+        })
+      );
     }else{
       return obs.map(valItem=>({
         status:'VALID',
