@@ -24,6 +24,20 @@ module.exports = {
               localIdentName: '[path][name]__[local]--[hash:base64:5]'
           }
         }]
+      },
+      {
+        test: /\.md$/,
+        use: [
+          {
+            loader: "html-loader"
+          },
+          {
+            loader: "markdown-loader",
+            options: {
+              /* your options here */
+            }
+          }
+        ]
       }
     ]
   },

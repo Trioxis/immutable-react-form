@@ -1,3 +1,5 @@
+/* styles.css */
+
 .formPaper{
   padding:1em;
   box-sizing: border-box;
@@ -23,4 +25,9 @@
 }
 .cartItemName{
   flex: 1 0 auto;
+}
+
+.formDataBox{
+  max-height: 400px;
+  overflow: scroll;
 }

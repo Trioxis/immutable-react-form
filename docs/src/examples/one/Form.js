@@ -1,37 +1,16 @@
+// Form.js
 import React from 'react';
-import { LocalStateForm, SimpleValidation } from 'immutable-react-form';
-import { Map } from 'immutable';
 
-import MUITextField from 'material-ui/TextField';
 import MUIPaper from 'material-ui/Paper';
 import MUIFlatButton from 'material-ui/FlatButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 
-import s from './basicForm.css';
+import TextField from './TextField';
+import s from './styles.css';
+import { NewCartItem } from './data';
 
-let formData = {
-  user:{
-    name:'',
-    shippingAddress:'',
-    username:''
-  },
-  cart:[{
-    quantity:5,
-    item:'Bertie Botts Every Flavour Beans'
-  }, {
-    quantity:1,
-    item:'Cauldron'
-  }, {
-    quantity:1,
-    item:'Nimbus 2000'
-  }, {
-    quantity:3,
-    item:'Robe'
-  }]
-}
-
-function Example(props){
+export default function Form(props){
   const {
     form,
     form:{
@@ -99,46 +78,20 @@ function Example(props){
             form.submission.loading
           )}
           >
-          Continue to "Payment"
+          {
+            form.submission.loading
+              ? "Submitting..."
+              : "Continue to \"Payment\""
+          }
         </MUIFlatButton>
       </form>
     </MUIPaper>
-    <MUIPaper className={s.formPaper}>
+    <MUIPaper className={s.formPaper+' '+s.formDataBox}>
       <h3>Form property</h3>
       <pre>{JSON.stringify(form,null,'  ')}</pre>
     </MUIPaper>
   </div>
 }
-
-function validationConfig(){
-  return{
-    'user.shippingAddress':(valItem)=>{
-      if(valItem.value.length < 10){
-        return {
-          status:'INVALID',
-          message:'Too short'
-        }
-      }else{
-        return {
-          status:'VALID'
-        }
-      }
-    },
-    'user.username':CheckUsernameIsAvailable
-  }
-}
-
-function submit(model,props){
-  alert('The form is now submitting :)')
-  formData = model.toJS()
-  return new Promise((res)=>setTimeout(res,3000));
-}
-
-export default LocalStateForm(
-  props => (formData),
-  SimpleValidation(validationConfig()),
-  submit
-)(Example);
 
 function CartItem(props){
   const {
@@ -162,59 +115,4 @@ function CartItem(props){
       X
     </button>
   </div>
-}
-
-function TextField(props){
-  const {
-    form,
-    field,
-    ...remainingProps
-  } = props;
-
-  const fieldValidationInfo = form.validation.get(field)
-
-  return <MUITextField
-    {...remainingProps}
-    value={form.model.getIn(field.split('.'))}
-    onChange={(e)=>
-      form.update(form.model.setIn(field.split('.'),e.target.value))
-    }
-    errorText={({
-      INVALID:fieldValidationInfo.message,
-      PENDING:'...'
-    })[fieldValidationInfo.status]
-    }
-  />
-}
-
-function GetStockNames(){
-  return [
-    'Bertie Botts Every Flavour Beans',
-    'Cauldron',
-    'Nimbus 2000',
-    'Robe',
-    'Invisible Cloak'
-  ];
-}
-
-function NewCartItem(){
-  return new Map({item:'',quantity:1});
-}
-
-function CheckUsernameIsAvailable({value}){
-  return new Promise((res,rej)=>{
-    setTimeout(()=>{
-      if(value.match(/^.*\d.*$/) !== null){
-        res({
-          status:'VALID'
-        });
-      }else{
-        res({
-          status:'INVALID',
-          message:'Username should contain a number'
-        })
-      }
-
-    }, 3000);
-  })
 }

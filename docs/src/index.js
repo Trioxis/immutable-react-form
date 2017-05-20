@@ -6,45 +6,49 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import s from './style.css';
 
-import BasicFormExample from './examples/basicForm';
-import BasicFormExampleCode from '!raw-loader!./examples/basicForm.js';
+import ExampleOne from './examples/one';
+import ExampleOneIndexCode from '!raw-loader!./examples/one/index.js';
+import ExampleOneFormCode from '!raw-loader!./examples/one/Form.js';
+import ExampleOneTextFieldCode from '!raw-loader!./examples/one/TextField.js';
+import ExampleOneValidationCode from '!raw-loader!./examples/one/validation.js';
+
+import writeUpOverview from './writeUp/overview.md';
+import writeUpExampleOverview from './writeUp/exampleOneOverview.md';
+import writeUpExampleIndex from './writeUp/exampleOneIndex.md';
+import writeUpExampleForm from './writeUp/exampleOneForm.md';
+import writeUpExampleCustomFieldComponents from './writeUp/exampleCustomFieldComponents.md';
+import writeUpValidation from './writeUp/validation.md';
 
 injectTapEventPlugin();
 
 function Docs(props){
   return <MuiThemeProvider>
-    <div>
-      <h1>
-        Immutable React Form
-        <small>
-          Form state management
-        </small>
-      </h1>
-      <ul>
-        <li>No involvement of rendering</li>
-        <li>Opinionated form API</li>
-        <li>Immutable form data</li>
-        <li>HOC, not components</li>
-      </ul>
-
-      <ExampleHolster code={BasicFormExampleCode}>
-        <h2>
-          Shopping Cart for Hogwarts Example
-        </h2>
-        <p>
-          Immutable React Form used at it's full potential! Features:
-        </p>
-        <ul>
-          <li>Form model with nested fields</li>
-          <li>And arrays!</li>
-          <li>Custom text fields with Material UI</li>
-          <li>Validation to confirm all fields are entered</li>
-          <li>Async Validation on Username (to check against "server")</li>
-          <li>Reset form fields</li>
-          <li>Async submission</li>
-        </ul>
-        <BasicFormExample />
-      </ExampleHolster>
+    <div className={s.page}>
+      <WriteUp className={s.topWriteUp} content={writeUpOverview}/>
+      <SideBySide
+        left={<WriteUp content={writeUpExampleOverview}/>}
+        right={<ExampleOne />}
+      />
+      <SideBySide
+        left={<WriteUp content={writeUpExampleIndex}/>}
+        right={<pre>{ExampleOneIndexCode}</pre>}
+        code
+      />
+      <SideBySide
+        left={<WriteUp content={writeUpExampleForm}/>}
+        right={<pre>{ExampleOneFormCode}</pre>}
+        code
+      />
+      <SideBySide
+        left={<WriteUp content={writeUpExampleCustomFieldComponents}/>}
+        right={<pre>{ExampleOneTextFieldCode}</pre>}
+        code
+      />
+      <SideBySide
+        left={<WriteUp content={writeUpValidation}/>}
+        right={<pre>{ExampleOneValidationCode}</pre>}
+        code
+      />
     </div>
   </MuiThemeProvider>
 }
@@ -54,13 +58,26 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-function ExampleHolster(props){
-  return <div className={s.codeHoster}>
-    <div className={s.codeHosterDocs}>
-      {props.children}
+function SideBySide(props){
+  return <div className={s.sbsWrapper}>
+    <div className={s.sbsColumn}>
+      {props.left}
     </div>
-    <div className={s.codeHosterCode}>
-      <pre>{props.code}</pre>
+    <div className={`${s.sbsColumn} ${!props.code || s.codeWrapper}`}>
+      {props.right}
     </div>
   </div>
+}
+
+function Code(props){
+  return <div className={s.codeWrapper}>
+    <pre>{props.children}</pre>
+  </div>
+}
+
+function WriteUp(props){
+  return <div
+    className={s.writeUp+' '+props.className}
+    dangerouslySetInnerHTML={{__html:props.content}}
+  />
 }

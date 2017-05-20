@@ -15,19 +15,37 @@ $blue:      #268bd2;
 $cyan:      #2aa198;
 $green:     #859900;*/
 
-.codeHoster{
+.padded{
+  padding:2em;  
+}
+
+.page{
+  max-width: 1000px;
+  margin:auto;
+}
+.sbsWrapper{
   display: flex;
   flex-wrap: wrap;
 }
-
-.codeHosterDocs{
+.sbsColumn{
+  composes:padded;
   flex:1 0 400px;
-  padding:2em;
+  width:400px;
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
 
-.codeHosterCode{
-  flex:1 0 400px;
-  padding:2em;
+.codeWrapper{
   background:#002b36;
   color:#93a1a1;
+  overflow: scroll;
+}
+
+.writeUp{
+  color: #333;
+  font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+}
+
+.topWriteUp{
+  composes:writeUp padded;
 }
