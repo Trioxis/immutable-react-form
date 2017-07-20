@@ -6,6 +6,10 @@
   ],
   "plugins":[
     "transform-async-to-generator",
-    "transform-es2015-spread"
+    "transform-es2015-spread",
+    ["transform-runtime", {
+      "polyfill": false,
+      "regenerator": true
+    }]
   ]
 }
