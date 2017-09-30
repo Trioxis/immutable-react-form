@@ -1,3 +1,1 @@
-export default function (){
-  return 'WOW.';
-}
+export const injectForm = ()=>(component)=>(props)=>'Wow.'

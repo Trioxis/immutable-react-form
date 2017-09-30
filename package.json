@@ -2,7 +2,7 @@
   "name": "@trioxis/react-form",
   "version": "1.0.0",
   "description": "React Form",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "repository": "git@github.com:Trioxis/immutable-react-form.git",
   "author": "Trioxis <hello@trioxis.com>",
   "license": "MIT",
@@ -10,7 +10,7 @@
   "scripts": {
     "cmd": "",
     "test": "ava",
-    "dev":"nodemon --watch ./src --exec yarn prepare",
+    "start":"nodemon --watch ./src --exec yarn prepare",
     "prepare":"babel src -d lib"
   },
   "devDependencies": {
