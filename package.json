@@ -9,12 +9,15 @@
   "private": false,
   "scripts": {
     "cmd": "",
-    "test": "ava"
+    "test": "ava",
+    "dev":"nodemon --watch ./src --exec yarn prepare",
+    "prepare":"babel src -d lib"
   },
   "devDependencies": {
     "ava": "^0.22.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.0",
-    "babel-runtime": "^6.26.0"
+    "babel-runtime": "^6.26.0",
+    "nodemon": "^1.12.1"
   }
 }
