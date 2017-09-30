@@ -6,5 +6,13 @@
   "repository": "git@github.com:Trioxis/immutable-react-form.git",
   "author": "Trioxis <hello@trioxis.com>",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "scripts": {
+    "cmd": ""
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-runtime": "^6.26.0"
+  }
 }
