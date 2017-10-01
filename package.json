@@ -10,14 +10,21 @@
   "scripts": {
     "cmd": "",
     "test": "ava",
-    "start":"nodemon --watch ./src --exec yarn prepare",
-    "prepare":"babel src -d lib"
+    "start": "nodemon --watch ./src --exec yarn prepare",
+    "prepare": "babel src -d lib"
   },
   "devDependencies": {
     "ava": "^0.22.0",
     "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
     "babel-runtime": "^6.26.0",
     "nodemon": "^1.12.1"
+  },
+  "dependencies": {
+    "immutable": "^4.0.0-rc.3",
+    "react": "^16.0.0",
+    "recompose": "^0.25.1"
   }
 }
