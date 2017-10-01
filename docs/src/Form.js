@@ -5,31 +5,36 @@ function Form(props){
   const {
     form:{
       model,
-      updateField
+      updateField,
+      submit
     },
   } = props;
 
-  return [
-    <label key='1'>Username</label>,
-    <input
-      key='2'
-      type='text'
-      value={model.username}
-      onChange={e=>updateField('username',e.target.value)}
-    />,
-    <label key='3'>Password</label>,
-    <input
-      key='4'
-      type='text'
-      value={model.password}
-      onChange={e=>updateField('password',e.target.value)}
-    />
-  ]
+  return (
+    <form onSubmit={submit}>
+      <label>Username</label>
+      <input
+        type='text'
+        value={model.username}
+        onChange={e=>updateField('username',e.target.value)}
+      />
+      <label>Password</label>
+      <input
+        type='text'
+        value={model.password}
+        onChange={e=>updateField('password',e.target.value)}
+      />
+      <input type='submit' />
+    </form>
+  )
 }
 
 export default injectForm(
   props=>({
     username:'',
     password:''
-  })
+  }),
+  (props,model)=>{
+    console.log(props,model)
+  }
 )(Form);
