@@ -25,6 +25,7 @@
   "dependencies": {
     "immutable": "^4.0.0-rc.3",
     "react": "^16.0.0",
+    "react-router-dom": "^4.2.2",
     "recompose": "^0.25.1"
   }
 }

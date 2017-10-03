@@ -7,6 +7,10 @@ import {
   withHandlers
 } from 'recompose';
 
+// Possible form states
+// Valid, Validating, Invalid, Submitting, Clean,
+// Submitted, SubmissionError
+
 export const injectForm = (mapDataFromProps,onSubmit)=>compose(
   controlledForm(mapDataFromProps),
   submitableForm(onSubmit)
@@ -24,7 +28,11 @@ const controlledForm = (mapDataFromProps)=>compose(
       form:{
         ...props.form,
         model:props._model,
-        updateField:(path,value)=>props._modelUpdate(props._model.setIn(path.split('.'),value)),
+        setField:(path,value)=>props._modelUpdate(props._model.setIn(path,value)),
+        updateField:(path,fn)=>{
+          const updatedModel = props._model.updateIn(path,fn);
+          return props._modelUpdate(updatedModel);
+        },
       }
     })
   )

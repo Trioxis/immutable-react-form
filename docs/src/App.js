@@ -1,20 +1,27 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Form from './Form';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <Form />
-      </div>
-    );
-  }
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom'
+
+import FormOne from './forms/FormOne';
+import FormTwo from './forms/FormTwo';
+
+function App(){
+  return (
+    <Router className="App">
+      <Switch>
+        <Route path='/one' component={FormOne} />
+        <Route path='/two' component={FormTwo} />
+        <Redirect path='/' to='/one' />
+      </Switch>
+    </Router>
+  );
 }
 
 export default App;
