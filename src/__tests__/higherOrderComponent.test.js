@@ -21,7 +21,9 @@ test('Enhanced component should render',()=>{
 })
 
 test('Form data may be calculated from props',()=>{
-  const MyForm = (props)=><span>{props.form.model.get('thing')}</span>;
+  const MyForm = jest.fn(
+    (props)=>null
+  );
 
   const EnhancedForm = injectForm(
     props=>props.data,
@@ -29,8 +31,31 @@ test('Form data may be calculated from props',()=>{
     props=>({})
   )(MyForm)
 
-  const tree = mount(<EnhancedForm data={{thing:'Wow'}} />);
+  const tree = mount(<EnhancedForm data={{foo:'bar'}} />);
 
-  expect(tree.contains(<span>Wow</span>)).toBe(true)
-  expect(tree).toMatchSnapshot()
+  expect(MyForm).toHaveBeenCalledTimes(1);
+  const firstRender = MyForm.mock.calls[0][0];
+  expect(firstRender.form.model.get('foo')).toBe('bar');
+})
+
+test('SetField updates model',()=>{
+  const MyForm = jest.fn(()=>null);
+
+  const EnhancedForm = injectForm(
+    props=>({aField:'Foo'}),
+    props=>null,
+    props=>({})
+  )(MyForm)
+
+  const tree = mount(<EnhancedForm />);
+  
+  expect(MyForm).toHaveBeenCalledTimes(1);
+  const firstRender = MyForm.mock.calls[0][0];
+  expect(firstRender.form.model.get('aField')).toBe('Foo');
+
+  firstRender.form.setField(['aField'],'Bar');
+
+  expect(MyForm).toHaveBeenCalledTimes(2);
+  const secondRender = MyForm.mock.calls[1][0];
+  expect(secondRender.form.model.get('aField')).toBe('Bar');
 })
