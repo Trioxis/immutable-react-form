@@ -54,7 +54,9 @@ const controlledForm = (mapDataFromProps)=>compose(
 const submitableForm = (onSubmit)=>compose(
   withHandlers({
     submit:props=>e=>{
-      e.preventDefault()
+      if(e && e.preventDefault){
+        e.preventDefault()
+      }
       onSubmit(props,props.form.model.toJS())
     }
   }),
