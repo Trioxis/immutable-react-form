@@ -59,3 +59,25 @@ test('SetField updates model',()=>{
   const secondRender = MyForm.mock.calls[1][0];
   expect(secondRender.form.model.get('aField')).toBe('Bar');
 })
+
+test('UpdateField updates model',()=>{
+  const MyForm = jest.fn(()=>null);
+
+  const EnhancedForm = injectForm(
+    props=>({aField:['Foo']}),
+    props=>null,
+    props=>({})
+  )(MyForm)
+
+  const tree = mount(<EnhancedForm />);
+  
+  expect(MyForm).toHaveBeenCalledTimes(1);
+  const firstRender = MyForm.mock.calls[0][0];
+  expect(firstRender.form.model.get('aField').toJS()).toEqual(['Foo']);
+
+  firstRender.form.updateField(['aField'],list=>list.push('Bar'));
+
+  expect(MyForm).toHaveBeenCalledTimes(2);
+  const secondRender = MyForm.mock.calls[1][0];
+  expect(secondRender.form.model.get('aField').toJS()).toEqual(['Foo','Bar']);
+})
