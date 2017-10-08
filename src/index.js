@@ -86,10 +86,8 @@ const validatedForm = (validationConfig)=>compose(
             validationFn:val
           }))
         )
-        ::_do(console.log)
         ::mergeMap(async config => {
           const res = await config.validationFn(config.formValue);
-          console.log(res)
           return{
             ...config,
             res:{
@@ -102,7 +100,6 @@ const validatedForm = (validationConfig)=>compose(
           ...acc,
           [val.key]:val.res
         }),{})
-        ::_do(console.log)
         ::_catch(console.error)
       )
       ::map(validation=>({
@@ -113,6 +110,5 @@ const validatedForm = (validationConfig)=>compose(
         }
       }))
     )
-    ::_do(console.log)
   )
 )

@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Enhanced component should render 1`] = `
+<withState(mapProps(mapPropsStream(withHandlers(mapProps(MyForm)))))>
+  <mapProps(mapPropsStream(withHandlers(mapProps(MyForm))))
+    _model={Immutable.Map {}}
+    _modelUpdate={[Function]}
+  >
+    <mapPropsStream(withHandlers(mapProps(MyForm)))
+      _model={Immutable.Map {}}
+      _modelUpdate={[Function]}
+      form={
+        Object {
+          "model": Immutable.Map {},
+          "setField": [Function],
+          "updateField": [Function],
+        }
+      }
+    >
+      <withHandlers(mapProps(MyForm))
+        _model={Immutable.Map {}}
+        _modelUpdate={[Function]}
+        form={
+          Object {
+            "model": Immutable.Map {},
+            "setField": [Function],
+            "updateField": [Function],
+            "validation": null,
+          }
+        }
+      >
+        <mapProps(MyForm)
+          _model={Immutable.Map {}}
+          _modelUpdate={[Function]}
+          form={
+            Object {
+              "model": Immutable.Map {},
+              "setField": [Function],
+              "updateField": [Function],
+              "validation": null,
+            }
+          }
+          submit={[Function]}
+        >
+          <MyForm
+            _model={Immutable.Map {}}
+            _modelUpdate={[Function]}
+            form={
+              Object {
+                "model": Immutable.Map {},
+                "setField": [Function],
+                "submit": [Function],
+                "updateField": [Function],
+                "validation": null,
+              }
+            }
+          >
+            <div>
+              Special Form
+            </div>
+          </MyForm>
+        </mapProps(MyForm)>
+      </withHandlers(mapProps(MyForm))>
+    </mapPropsStream(withHandlers(mapProps(MyForm)))>
+  </mapProps(mapPropsStream(withHandlers(mapProps(MyForm))))>
+</withState(mapProps(mapPropsStream(withHandlers(mapProps(MyForm)))))>
+`;
