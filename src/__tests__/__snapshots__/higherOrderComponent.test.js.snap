@@ -65,3 +65,128 @@ exports[`Enhanced component should render 1`] = `
   </mapProps(mapPropsStream(withHandlers(mapProps(MyForm))))>
 </withState(mapProps(mapPropsStream(withHandlers(mapProps(MyForm)))))>
 `;
+
+exports[`Form data may be calculated from props 1`] = `
+<withState(mapProps(mapPropsStream(withHandlers(mapProps(MyForm)))))
+  data={
+    Object {
+      "thing": "Wow",
+    }
+  }
+>
+  <mapProps(mapPropsStream(withHandlers(mapProps(MyForm))))
+    _model={
+      Immutable.Map {
+        "thing": "Wow",
+      }
+    }
+    _modelUpdate={[Function]}
+    data={
+      Object {
+        "thing": "Wow",
+      }
+    }
+  >
+    <mapPropsStream(withHandlers(mapProps(MyForm)))
+      _model={
+        Immutable.Map {
+          "thing": "Wow",
+        }
+      }
+      _modelUpdate={[Function]}
+      data={
+        Object {
+          "thing": "Wow",
+        }
+      }
+      form={
+        Object {
+          "model": Immutable.Map {
+            "thing": "Wow",
+          },
+          "setField": [Function],
+          "updateField": [Function],
+        }
+      }
+    >
+      <withHandlers(mapProps(MyForm))
+        _model={
+          Immutable.Map {
+            "thing": "Wow",
+          }
+        }
+        _modelUpdate={[Function]}
+        data={
+          Object {
+            "thing": "Wow",
+          }
+        }
+        form={
+          Object {
+            "model": Immutable.Map {
+              "thing": "Wow",
+            },
+            "setField": [Function],
+            "updateField": [Function],
+            "validation": null,
+          }
+        }
+      >
+        <mapProps(MyForm)
+          _model={
+            Immutable.Map {
+              "thing": "Wow",
+            }
+          }
+          _modelUpdate={[Function]}
+          data={
+            Object {
+              "thing": "Wow",
+            }
+          }
+          form={
+            Object {
+              "model": Immutable.Map {
+                "thing": "Wow",
+              },
+              "setField": [Function],
+              "updateField": [Function],
+              "validation": null,
+            }
+          }
+          submit={[Function]}
+        >
+          <MyForm
+            _model={
+              Immutable.Map {
+                "thing": "Wow",
+              }
+            }
+            _modelUpdate={[Function]}
+            data={
+              Object {
+                "thing": "Wow",
+              }
+            }
+            form={
+              Object {
+                "model": Immutable.Map {
+                  "thing": "Wow",
+                },
+                "setField": [Function],
+                "submit": [Function],
+                "updateField": [Function],
+                "validation": null,
+              }
+            }
+          >
+            <span>
+              Wow
+            </span>
+          </MyForm>
+        </mapProps(MyForm)>
+      </withHandlers(mapProps(MyForm))>
+    </mapPropsStream(withHandlers(mapProps(MyForm)))>
+  </mapProps(mapPropsStream(withHandlers(mapProps(MyForm))))>
+</withState(mapProps(mapPropsStream(withHandlers(mapProps(MyForm)))))>
+`;
