@@ -4,15 +4,28 @@ import {
   compose,
   withState,
   mapProps,
-  withHandlers
+  withHandlers,
+  mapPropsStream
 } from 'recompose';
+
+import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
+import { merge } from 'rxjs/observable/merge';
+import { from } from 'rxjs/observable/from';
+
+import { map } from 'rxjs/operator/map';
+import { scan } from 'rxjs/operator/scan';
+import { mergeMap } from 'rxjs/operator/mergeMap';
+import { _do } from 'rxjs/operator/do';
+import { _catch } from 'rxjs/operator/catch';
 
 // Possible form states
 // Valid, Validating, Invalid, Submitting, Clean,
 // Submitted, SubmissionError
 
-export const injectForm = (mapDataFromProps,onSubmit)=>compose(
+export const injectForm = (mapDataFromProps,onSubmit,validationConfig)=>compose(
   controlledForm(mapDataFromProps),
+  validatedForm(validationConfig),
   submitableForm(onSubmit)
 )
 
@@ -53,5 +66,53 @@ const submitableForm = (onSubmit)=>compose(
         submit
       }
     })
+  )
+)
+
+const validatedForm = (validationConfig)=>compose(
+  mapPropsStream(
+    (props$)=>Observable::from(props$)
+    ::mergeMap(props=>
+      Observable::merge(
+        Observable::of(null),
+        Observable::of(props)
+        ::mergeMap(({form})=>
+          Object.entries(
+            validationConfig(props)
+          )
+          .map(([key,val])=>({
+            key,
+            formValue:props.form.model.get(key),
+            validationFn:val
+          }))
+        )
+        ::_do(console.log)
+        ::mergeMap(async config => {
+          const res = await config.validationFn(config.formValue);
+          console.log(res)
+          return{
+            ...config,
+            res:{
+              valid:res === true,
+              error:res !== true ? res.toString() : null
+            }
+          }
+        })
+        ::scan((acc,val)=>({
+          ...acc,
+          [val.key]:val.res
+        }),{})
+        ::_do(console.log)
+        ::_catch(console.error)
+      )
+      ::map(validation=>({
+        ...props,
+        form:{
+          ...props.form,
+          validation
+        }
+      }))
+    )
+    ::_do(console.log)
   )
 )

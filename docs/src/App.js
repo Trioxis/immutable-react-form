@@ -11,6 +11,7 @@ import {
 
 import FormOne from './forms/FormOne';
 import FormTwo from './forms/FormTwo';
+import FormThree from './forms/CreateUserForm';
 
 function App(){
   return (
@@ -18,6 +19,7 @@ function App(){
       <Switch>
         <Route path='/one' component={FormOne} />
         <Route path='/two' component={FormTwo} />
+        <Route path='/three' component={FormThree} />
         <Redirect path='/' to='/one' />
       </Switch>
     </Router>
