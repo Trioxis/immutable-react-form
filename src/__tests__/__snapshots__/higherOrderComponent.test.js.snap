@@ -1,81 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Enhanced component should render with form props 1`] = `
-<withState(mapProps(mapPropsStream(withHandlers(mapProps(mockConstructor)))))>
-  <mapProps(mapPropsStream(withHandlers(mapProps(mockConstructor))))
-    _model={Immutable.Map {}}
-    _modelUpdate={[Function]}
-  >
-    <mapPropsStream(withHandlers(mapProps(mockConstructor)))
-      _model={Immutable.Map {}}
-      _modelUpdate={[Function]}
-      form={
-        Object {
-          "model": Immutable.Map {},
-          "setField": [Function],
-          "updateField": [Function],
-        }
-      }
-    >
-      <withHandlers(mapProps(mockConstructor))
-        _model={Immutable.Map {}}
-        _modelUpdate={[Function]}
-        form={
-          Object {
-            "model": Immutable.Map {},
-            "setField": [Function],
-            "updateField": [Function],
-            "validation": null,
-          }
-        }
-      >
-        <mapProps(mockConstructor)
-          _model={Immutable.Map {}}
-          _modelUpdate={[Function]}
-          form={
-            Object {
-              "model": Immutable.Map {},
-              "setField": [Function],
-              "updateField": [Function],
-              "validation": null,
-            }
-          }
-          submit={[Function]}
-        >
-          <mockConstructor
-            _model={Immutable.Map {}}
-            _modelUpdate={[Function]}
-            form={
-              Object {
-                "model": Immutable.Map {},
-                "setField": [Function],
-                "submit": [Function],
-                "updateField": [Function],
-                "validation": null,
-              }
-            }
-          >
-            <div>
-              Special Form
-            </div>
-          </mockConstructor>
-        </mapProps(mockConstructor)>
-      </withHandlers(mapProps(mockConstructor))>
-    </mapPropsStream(withHandlers(mapProps(mockConstructor)))>
-  </mapProps(mapPropsStream(withHandlers(mapProps(mockConstructor))))>
-</withState(mapProps(mapPropsStream(withHandlers(mapProps(mockConstructor)))))>
-`;
-
-exports[`Enhanced component should render with form props 2`] = `
 Object {
-  "_model": Immutable.Map {},
-  "_modelUpdate": [Function],
   "form": Object {
+    "fieldUpdated": Object {
+      "handler": [Function],
+      "stream": Object {
+        "subscribe": [Function],
+        Symbol(observable): [Function],
+      },
+    },
     "model": Immutable.Map {},
     "setField": [Function],
     "submit": [Function],
     "updateField": [Function],
-    "validation": null,
   },
 }
 `;
@@ -83,18 +21,20 @@ Object {
 exports[`Submit function receives appropriate args 1`] = `
 Array [
   Object {
-    "_model": Immutable.Map {
-      "aField": "baz",
-    },
-    "_modelUpdate": [Function],
     "aProp": "bar",
     "form": Object {
+      "fieldUpdated": Object {
+        "handler": [Function],
+        "stream": Object {
+          "subscribe": [Function],
+          Symbol(observable): [Function],
+        },
+      },
       "model": Immutable.Map {
         "aField": "baz",
       },
       "setField": [Function],
       "updateField": [Function],
-      "validation": null,
     },
   },
   Object {

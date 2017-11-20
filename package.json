@@ -42,6 +42,8 @@
       "./src/__test_setup/animationKeyframe.js",
       "./src/__test_setup/enzyme.js"
     ],
-    "snapshotSerializers": ["enzyme-to-json/serializer"]    
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ]
   }
 }

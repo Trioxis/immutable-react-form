@@ -11,13 +11,12 @@ test('Enhanced component should render with form props',()=>{
   const EnhancedForm = injectForm(
     props=>({}),
     props=>null,
-    props=>({})
+    null
   )(MyForm)
 
   const tree = mount(<EnhancedForm />);
 
   expect(tree.contains(formElements)).toBe(true)
-  expect(tree).toMatchSnapshot()
 
   // Detect high level API changes
   expect(MyForm.mock.calls.length).toBe(1)
@@ -32,7 +31,7 @@ test('Form data may be calculated from props',()=>{
   const EnhancedForm = injectForm(
     props=>props.data,
     props=>null,
-    props=>({})
+    null
   )(MyForm)
 
   const tree = mount(<EnhancedForm data={{foo:'bar'}} />);
@@ -48,7 +47,7 @@ test('SetField updates model',()=>{
   const EnhancedForm = injectForm(
     props=>({aField:'Foo'}),
     props=>null,
-    props=>({})
+    null
   )(MyForm)
 
   const tree = mount(<EnhancedForm />);
@@ -70,7 +69,7 @@ test('UpdateField updates model',()=>{
   const EnhancedForm = injectForm(
     props=>({aField:['Foo']}),
     props=>null,
-    props=>({})
+    null
   )(MyForm)
 
   const tree = mount(<EnhancedForm />);
@@ -93,7 +92,7 @@ test('Submit function receives appropriate args',()=>{
   const EnhancedForm = injectForm(
     props=>({aField:'foo'}),
     submitFn,
-    props=>({})
+    null
   )(MyForm)
 
   const tree = mount(<EnhancedForm aProp='bar' />);
@@ -117,3 +116,70 @@ test('Submit function receives appropriate args',()=>{
 
   expect(submitFn.mock.calls[0]).toMatchSnapshot()
 })
+
+test('Validation fires for edited fields only',()=>{
+  const MyForm = jest.fn(()=>null);
+  const aFieldValidator = jest.fn(()=>true);
+  const bFieldValidator = jest.fn(()=>true);
+  const submitFn = jest.fn(()=>null);
+
+  const EnhancedForm = injectForm(
+    props=>({aField:'foo',bField:''}),
+    submitFn,
+    {
+      aField:aFieldValidator,
+      bField:bFieldValidator
+    }
+  )(MyForm);
+
+  const tree = mount(<EnhancedForm />);
+  
+  expect(aFieldValidator.mock.calls.length).toBe(0);
+  expect(bFieldValidator.mock.calls.length).toBe(0);
+
+  const firstRender = CompnentsLatestCall(MyForm);
+  firstRender.form.setField(['aField'],'baz');
+
+  expect(aFieldValidator.mock.calls.length).toBe(1);
+  expect(bFieldValidator.mock.calls.length).toBe(0);
+
+  const secondRender = CompnentsLatestCall(MyForm);
+  // secondRender.form.submit();
+  
+  // expect(aFieldValidator.mock.calls.length).toBe(1);
+  // expect(bFieldValidator.mock.calls.length).toBe(1);
+  // expect(submitFn.mock.calls.length).toBe(1);
+});
+
+test('Validation prevents submission on failure',()=>{
+  const MyForm = jest.fn(()=>null);
+  const aFieldValidator = jest.fn(()=>new Error('Whoops'));
+  const submitFn = jest.fn(()=>null);
+
+  const EnhancedForm = injectForm(
+    props=>({aField:'foo',bField:''}),
+    submitFn,
+    {
+      aField:aFieldValidator
+    }
+  )(MyForm);
+
+  const tree = mount(<EnhancedForm />);
+  
+  const firstRender = CompnentsLatestCall(MyForm);
+  firstRender.form.setField(['aField'],'baz');
+
+
+  const secondRender = CompnentsLatestCall(MyForm);
+  secondRender.form.submit();
+  
+  expect(aFieldValidator.mock.calls.length).toBe(1);
+
+  expect(submitFn.mock.calls.length).toBe(0);
+});
+
+function CompnentsLatestCall(spiedComponent){
+  const calls = spiedComponent.mock.calls;
+
+  return calls[calls.length-1][0];
+}
