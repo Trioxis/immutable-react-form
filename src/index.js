@@ -23,6 +23,7 @@ import { filter } from 'rxjs/operator/filter';
 import { mergeMap } from 'rxjs/operator/mergeMap';
 import { _do } from 'rxjs/operator/do';
 import { _catch } from 'rxjs/operator/catch';
+import { debounceTime } from 'rxjs/operator/debounceTime';
 
 // Possible form states
 // Valid, Validating, Invalid, Submitting, Clean,
@@ -31,8 +32,8 @@ import { _catch } from 'rxjs/operator/catch';
 
 const FORM_STATE = {
   CLEAN:'CLEAN',
+  DIRTY:'DIRTY',
   VALID:'VALID',
-  VALIDATING:'VALIDATING',
   INVALID:'INVALID',
   SUBMITTING:'SUBMITTING',
   SUBMITTED:'SUBMITTED',
@@ -51,15 +52,19 @@ export const injectForm =
       super(props);
       this.state = {
         model: fromJS(mapDataFromProps(this.props)),
-        validation: {}
+        validation: {},
+        state:FORM_STATE.CLEAN
       }
       this.updateField$ = new Subject();
       this.setField$ = new Subject();
-      this.updateState$ = new Subject();
+      const updateState$ = new Subject();
       this.validateField$ = new Subject();
       this.submit$ = new Subject();
+      const setFormState$ = new Subject();
 
-      this.updateState$.subscribe((obj) => this.setState(obj));
+      updateState$.subscribe((obj) => this.setState(obj));
+      
+      setFormState$.subscribe((state)=>updateState$.next({state}));
 
       this.fieldUpdated$ = Observable
       ::merge(
@@ -79,28 +84,40 @@ export const injectForm =
       ::_do((args)=>this.validateField$.next(args))
       // Update Model
       ::map(([pointer,model])=>model)
-      .subscribe((model)=>this.updateState$.next({model}))
+      .subscribe((model)=>updateState$.next({model}))
 
-      this.validateField$
-      ::mergeMap(async ([pointer,model])=>{
-        const validationFn = validationConfig[pointer];
+      Observable
+      ::merge(
+        this.validateField$
+        ::map(([pointer,model])=>([pointer,null])),
 
-        if(validationFn != null){
-          try{
-            await validationFn(model);
-            return [pointer,true];
-          }catch(e){
-            return [pointer,e]
+        this.validateField$
+        ::mergeMap(async ([pointer,model])=>{
+          const validationFn = validationConfig[pointer];
+  
+          if(validationFn != null){
+            try{
+              await validationFn(model);
+              return [pointer,true];
+            }catch(e){
+              return [pointer,e];
+            }
           }
-        }
-      })
+        })
+      )
+      ::debounceTime(10)
       ::scan((acc,[key,val])=>({
         ...acc,
         [key]:val
       }))
-      .subscribe((validation=>this.updateState$.next({validation})))
+      .subscribe((validation=>updateState$.next({validation})))
 
       this.submit$
+      ::filter(([props,model])=>
+        Object.keys(validationConfig || {})
+        .map(key=>this.state.validation[key])
+        .every(val=>val === true)
+      )
       ::map(([props,model])=>[
         props,
         model.toJS()
@@ -109,7 +126,6 @@ export const injectForm =
     }
 
     validField(pointer){
-      console.log(this.state)
       const res = this.state.validation[pointer]
       if(res !== undefined){
         return res;

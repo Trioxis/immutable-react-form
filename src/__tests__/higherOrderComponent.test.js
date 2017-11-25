@@ -169,7 +169,7 @@ test('Validation information is available to enhanced component',()=>{
 
 test('Validation prevents submission on failure',()=>{
   const MyForm = jest.fn(()=>null);
-  const aFieldValidator = jest.fn(()=>new Error('Whoops'));
+  const aFieldValidator = jest.fn(()=>Promise.reject(new Error('Whoops')));
   const submitFn = jest.fn(()=>null);
 
   const EnhancedForm = injectForm(
@@ -185,12 +185,11 @@ test('Validation prevents submission on failure',()=>{
   const firstRender = CompnentsLatestCall(MyForm);
   firstRender.form.setField(['aField'],'baz');
 
+  expect(aFieldValidator.mock.calls.length).toBe(1);
 
   const secondRender = CompnentsLatestCall(MyForm);
   secondRender.form.submit();
   
-  expect(aFieldValidator.mock.calls.length).toBe(1);
-
   expect(submitFn.mock.calls.length).toBe(0);
 });
 
