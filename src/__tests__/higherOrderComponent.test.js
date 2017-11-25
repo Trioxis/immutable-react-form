@@ -14,13 +14,13 @@ test('Enhanced component should render with form props',()=>{
     null
   )(MyForm)
 
-  const tree = mount(<EnhancedForm />);
+  const tree = mount(<EnhancedForm foo='bar' />);
 
   expect(tree.contains(formElements)).toBe(true)
 
   // Detect high level API changes
   expect(MyForm.mock.calls.length).toBe(1)
-  expect(MyForm.mock.calls[0][0]).toMatchSnapshot()
+  expect(CompnentsLatestCall(MyForm)).toMatchSnapshot()
 })
 
 test('Form data may be calculated from props',()=>{
@@ -37,7 +37,7 @@ test('Form data may be calculated from props',()=>{
   const tree = mount(<EnhancedForm data={{foo:'bar'}} />);
 
   expect(MyForm).toHaveBeenCalledTimes(1);
-  const firstRender = MyForm.mock.calls[0][0];
+  const firstRender = CompnentsLatestCall(MyForm);
   expect(firstRender.form.model.get('foo')).toBe('bar');
 })
 
@@ -53,13 +53,13 @@ test('SetField updates model',()=>{
   const tree = mount(<EnhancedForm />);
   
   expect(MyForm).toHaveBeenCalledTimes(1);
-  const firstRender = MyForm.mock.calls[0][0];
+  const firstRender = CompnentsLatestCall(MyForm);
   expect(firstRender.form.model.get('aField')).toBe('Foo');
 
   firstRender.form.setField(['aField'],'Bar');
 
   expect(MyForm).toHaveBeenCalledTimes(2);
-  const secondRender = MyForm.mock.calls[1][0];
+  const secondRender = CompnentsLatestCall(MyForm);
   expect(secondRender.form.model.get('aField')).toBe('Bar');
 })
 
@@ -75,13 +75,13 @@ test('UpdateField updates model',()=>{
   const tree = mount(<EnhancedForm />);
   
   expect(MyForm).toHaveBeenCalledTimes(1);
-  const firstRender = MyForm.mock.calls[0][0];
+  const firstRender = CompnentsLatestCall(MyForm);
   expect(firstRender.form.model.get('aField').toJS()).toEqual(['Foo']);
 
   firstRender.form.updateField(['aField'],list=>list.push('Bar'));
 
   expect(MyForm).toHaveBeenCalledTimes(2);
-  const secondRender = MyForm.mock.calls[1][0];
+  const secondRender = CompnentsLatestCall(MyForm);
   expect(secondRender.form.model.get('aField').toJS()).toEqual(['Foo','Bar']);
 })
 
@@ -97,9 +97,9 @@ test('Submit function receives appropriate args',()=>{
 
   const tree = mount(<EnhancedForm aProp='bar' />);
   
-  const firstRender = MyForm.mock.calls[0][0];
+  const firstRender = CompnentsLatestCall(MyForm);
   firstRender.form.setField(['aField'],'baz');
-  const secondRender = MyForm.mock.calls[1][0];
+  const secondRender = CompnentsLatestCall(MyForm);
 
   expect(submitFn.mock.calls.length).toBe(0)
   secondRender.form.submit();
@@ -142,13 +142,29 @@ test('Validation fires for edited fields only',()=>{
 
   expect(aFieldValidator.mock.calls.length).toBe(1);
   expect(bFieldValidator.mock.calls.length).toBe(0);
+});
+
+test('Validation information is available to enhanced component',()=>{
+  const MyForm = jest.fn(()=>null);
+  const submitFn = jest.fn(()=>null);
+
+  const EnhancedForm = injectForm(
+    props=>({aField:'foo'}),
+    submitFn,
+    {
+      aField:()=>Promise.reject(new Error('Oops'))
+    }
+  )(MyForm);
+
+  const tree = mount(<EnhancedForm />);
+
+  const firstRender = CompnentsLatestCall(MyForm);
+  firstRender.form.setField(['aField'],'baz');
 
   const secondRender = CompnentsLatestCall(MyForm);
-  // secondRender.form.submit();
   
-  // expect(aFieldValidator.mock.calls.length).toBe(1);
-  // expect(bFieldValidator.mock.calls.length).toBe(1);
-  // expect(submitFn.mock.calls.length).toBe(1);
+  const fieldRes = secondRender.form.validField(['afield'])
+  expect(fieldRes).toBe(true);
 });
 
 test('Validation prevents submission on failure',()=>{

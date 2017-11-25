@@ -2,18 +2,13 @@
 
 exports[`Enhanced component should render with form props 1`] = `
 Object {
+  "foo": "bar",
   "form": Object {
-    "fieldUpdated": Object {
-      "handler": [Function],
-      "stream": Object {
-        "subscribe": [Function],
-        Symbol(observable): [Function],
-      },
-    },
     "model": Immutable.Map {},
     "setField": [Function],
     "submit": [Function],
     "updateField": [Function],
+    "validField": [Function],
   },
 }
 `;
@@ -22,20 +17,6 @@ exports[`Submit function receives appropriate args 1`] = `
 Array [
   Object {
     "aProp": "bar",
-    "form": Object {
-      "fieldUpdated": Object {
-        "handler": [Function],
-        "stream": Object {
-          "subscribe": [Function],
-          Symbol(observable): [Function],
-        },
-      },
-      "model": Immutable.Map {
-        "aField": "baz",
-      },
-      "setField": [Function],
-      "updateField": [Function],
-    },
   },
   Object {
     "aField": "baz",

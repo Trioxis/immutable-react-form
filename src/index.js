@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { fromJS } from 'immutable';
 import {
   compose,
@@ -28,114 +28,113 @@ import { _catch } from 'rxjs/operator/catch';
 // Valid, Validating, Invalid, Submitting, Clean,
 // Submitted, SubmissionError
 
-export const injectForm = (mapDataFromProps,onSubmit,validationConfig)=>compose(
-  controlledForm(mapDataFromProps),
-  validatedForm(validationConfig),
-  submitableForm(onSubmit)
-)
 
-const controlledForm = (mapDataFromProps)=>compose(
-  defaultProps({
-    form:{
-      fieldUpdated:createEventHandler()
-    }
-  }),
-  withState(
-    '_model',
-    '_modelUpdate',
-    props=>fromJS(mapDataFromProps(props))
-  ),
-  mapProps(
-    ({_model,_modelUpdate,...props})=>({
-      ...props,
-      form:{
-        ...props.form,
-        model:_model,
-        setField:(path,value)=>{
-          _modelUpdate(_model.setIn(path,value))
-          props.form.fieldUpdated.handler(path)          
-        },
-        updateField:(path,fn)=>{
-          const updatedModel = _model.updateIn(path,fn);
-          _modelUpdate(updatedModel);
-          props.form.fieldUpdated.handler(path);
-        },
-      }
-    })
-  )
-)
-
-const submitableForm = (onSubmit)=>compose(
-  withHandlers({
-    submit:props=>e=>{
-      if(e && e.preventDefault){
-        e.preventDefault()
-      }
-      onSubmit(props,props.form.model.toJS())
-    }
-  }),
-  mapProps(
-    ({submit,...props})=>({
-      ...props,
-      form:{
-        ...props.form,
-        submit
-      }
-    })
-  )
-)
-
-const VALIDATION_STATUS = {
+const FORM_STATE = {
+  CLEAN:'CLEAN',
   VALID:'VALID',
+  VALIDATING:'VALIDATING',
   INVALID:'INVALID',
-  LOADING:'LOADING'
+  SUBMITTING:'SUBMITTING',
+  SUBMITTED:'SUBMITTED',
+  SUBMISSION_ERROR:'SUBMISSION_ERROR',
 }
 
-const validatedForm = (validationConfig)=>compose(
-  mapPropsStream(
-    (props$)=>{
-      const _validationConfig = validationConfig || {};
+type ValidationConfig = {
+  [key:Array]:()=>Promise<null>
+}
 
-      return Observable::merge(
-        Observable::from(props$),
-        Observable::from(props$)
-        ::take(1)  
-        ::mergeMap(props=>{
-          const fieldUpdate$ = Observable::from(props.form.fieldUpdated.stream);
-          return fieldUpdate$
+export const injectForm =
+(mapDataFromProps,onSubmit,validationConfig:ValidationConfig)=>
+(InnerComponent)=>{
+  return class ImmutableForm extends Component{
+    constructor(props){
+      super(props);
+      this.state = {
+        model: fromJS(mapDataFromProps(this.props)),
+        validation: {}
+      }
+      this.updateField$ = new Subject();
+      this.setField$ = new Subject();
+      this.updateState$ = new Subject();
+      this.validateField$ = new Subject();
+      this.submit$ = new Subject();
 
-          // Debt this will break nested fields
-          ::map(field=>field[0])
+      this.updateState$.subscribe((obj) => this.setState(obj));
 
+      this.fieldUpdated$ = Observable
+      ::merge(
+        this.setField$
+        ::map(([pointer,value])=>[
+          pointer,
+          this.state.model.setIn(pointer,value)
+        ]),
 
-          ::map(fieldUpdated=>({
-            fieldUpdated,
-            validationFn:_validationConfig[fieldUpdated],
-            props,
-          }))
-        })
-        ::filter(info=>info.validationFn !== null && info.validationFn !== undefined)
-        // ::mergeMap(async info=>({
-        //   ...info,
-        //   res:await info.validationFn(info.props.form.model.getIn(info.props.fieldUpdated))
-        // }))
-        ::map(info=>({
-          ...info,
-          res:info.validationFn(info.props.form.model.get(info.props.fieldUpdated))
-        }))
-        // ::_do(console.log)
-        ::scan((acc,{props,res,fieldUpdated})=>({
-          ...props,
-          form:{
-            ...props.form,
-            validation:{
-              ...acc.form.validation,
-              [fieldUpdated]:res
-            }
-          }
-        }),{form:{validation:{}}})
-        ::_do(console.log)
+        this.updateField$
+        ::map(([pointer,updater])=>[
+          pointer,
+          this.state.model.updateIn(pointer,updater)
+        ]),
       )
+      // Fire validation
+      ::_do((args)=>this.validateField$.next(args))
+      // Update Model
+      ::map(([pointer,model])=>model)
+      .subscribe((model)=>this.updateState$.next({model}))
+
+      this.validateField$
+      ::mergeMap(async ([pointer,model])=>{
+        const validationFn = validationConfig[pointer];
+
+        if(validationFn != null){
+          try{
+            await validationFn(model);
+            return [pointer,true];
+          }catch(e){
+            return [pointer,e]
+          }
+        }
+      })
+      ::scan((acc,[key,val])=>({
+        ...acc,
+        [key]:val
+      }))
+      .subscribe((validation=>this.updateState$.next({validation})))
+
+      this.submit$
+      ::map(([props,model])=>[
+        props,
+        model.toJS()
+      ])
+      .subscribe(args=>onSubmit(...args))
     }
-  )
-)
+
+    validField(pointer){
+      console.log(this.state)
+      const res = this.state.validation[pointer]
+      if(res !== undefined){
+        return res;
+      }else{
+        return true;
+      }
+    }
+
+    render(){
+      const {
+        ...remainingProps
+      } = this.props;
+
+      const { model } = this.state;
+
+      return <InnerComponent
+        {...remainingProps}
+        form={{
+          model,
+          setField:(...args)=>this.setField$.next(args),
+          updateField:(...args)=>this.updateField$.next(args),
+          validField:this.validField.bind(this),
+          submit:()=>this.submit$.next([remainingProps,model])
+        }}
+        />
+    }
+  }  
+}
