@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import {injectForm} from '../';
-
+import { first } from 'rxjs/operator/first';
 
 test('Enhanced component should render with form props',()=>{
   const formElements = <div>Special Form</div>;
@@ -19,7 +19,7 @@ test('Enhanced component should render with form props',()=>{
   expect(tree.contains(formElements)).toBe(true)
 
   // Detect high level API changes
-  expect(MyForm.mock.calls.length).toBe(1)
+  expect(MyForm).toHaveBeenCalledTimes(1)
   expect(CompnentsLatestCall(MyForm)).toMatchSnapshot()
 })
 
@@ -101,9 +101,9 @@ test('Submit function receives appropriate args',()=>{
   firstRender.form.setField(['aField'],'baz');
   const secondRender = CompnentsLatestCall(MyForm);
 
-  expect(submitFn.mock.calls.length).toBe(0)
+  expect(submitFn).toHaveBeenCalledTimes(0)
   secondRender.form.submit();
-  expect(submitFn.mock.calls.length).toBe(1)
+  expect(submitFn).toHaveBeenCalledTimes(1)
   
   // Check both props and model exist
   expect(submitFn.mock.calls[0].length).toBe(2)
@@ -117,7 +117,7 @@ test('Submit function receives appropriate args',()=>{
   expect(submitFn.mock.calls[0]).toMatchSnapshot()
 })
 
-test('Validation fires for edited fields only',()=>{
+test('Validation fires fields for with config as they\'re edited',()=>{
   const MyForm = jest.fn(()=>null);
   const aFieldValidator = jest.fn(()=>true);
   const bFieldValidator = jest.fn(()=>true);
@@ -134,14 +134,14 @@ test('Validation fires for edited fields only',()=>{
 
   const tree = mount(<EnhancedForm />);
   
-  expect(aFieldValidator.mock.calls.length).toBe(0);
-  expect(bFieldValidator.mock.calls.length).toBe(0);
+  expect(aFieldValidator).toHaveBeenCalledTimes(0);
+  expect(bFieldValidator).toHaveBeenCalledTimes(0);
 
   const firstRender = CompnentsLatestCall(MyForm);
   firstRender.form.setField(['aField'],'baz');
 
-  expect(aFieldValidator.mock.calls.length).toBe(1);
-  expect(bFieldValidator.mock.calls.length).toBe(0);
+  expect(aFieldValidator).toHaveBeenCalledTimes(1);
+  expect(bFieldValidator).toHaveBeenCalledTimes(0);
 });
 
 test('Validation information is available to enhanced component',()=>{
@@ -185,12 +185,36 @@ test('Validation prevents submission on failure',()=>{
   const firstRender = CompnentsLatestCall(MyForm);
   firstRender.form.setField(['aField'],'baz');
 
-  expect(aFieldValidator.mock.calls.length).toBe(1);
+  expect(aFieldValidator).toHaveBeenCalledTimes(1);
 
   const secondRender = CompnentsLatestCall(MyForm);
   secondRender.form.submit();
   
-  expect(submitFn.mock.calls.length).toBe(0);
+  expect(submitFn).toHaveBeenCalledTimes(0);
+});
+
+test('Submission fires validation of not-yet-validated fields and then resubmits once valid',async ()=>{
+  const MyForm = jest.fn(()=>null);
+  const aFieldValidator = jest.fn(()=>true)
+  const submitFn = jest.fn(()=>null);
+
+  const EnhancedForm = injectForm(
+    props=>({aField:'foo',bField:''}),
+    submitFn,
+    {
+      aField:aFieldValidator
+    }
+  )(MyForm);
+
+  const tree = mount(<EnhancedForm />);
+  
+  const firstRender = CompnentsLatestCall(MyForm);
+  expect(aFieldValidator).toHaveBeenCalledTimes(0);
+  firstRender.form.submit();
+
+  expect(aFieldValidator).toHaveBeenCalledTimes(1);
+  expect(submitFn).toHaveBeenCalledTimes(1);
+
 });
 
 function CompnentsLatestCall(spiedComponent){
