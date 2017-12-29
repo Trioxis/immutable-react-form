@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import {injectForm} from '../';
-import { first } from 'rxjs/operator/first';
 
 test('Enhanced component should render with form props',()=>{
   const formElements = <div>Special Form</div>;

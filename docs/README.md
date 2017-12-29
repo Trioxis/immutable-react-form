@@ -12,6 +12,7 @@ These repositories must be linked together
 ```shell 
 # In the above directory 
 yarn link
+yarn start
 
 cd ./docs
 

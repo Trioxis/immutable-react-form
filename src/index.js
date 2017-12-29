@@ -1,14 +1,5 @@
 import React, { Component } from 'react';
 import { fromJS } from 'immutable';
-import {
-  compose,
-  withState,
-  mapProps,
-  withHandlers,
-  mapPropsStream,
-  defaultProps,
-  createEventHandler
-} from 'recompose';
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
