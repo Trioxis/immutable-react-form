@@ -85,7 +85,7 @@ test('UpdateField updates model',()=>{
   expect(secondRender.form.model.get('aField').toJS()).toEqual(['Foo','Bar']);
 })
 
-test('Submit function receives appropriate args',()=>{
+test('Submit function receives appropriate args',async ()=>{
   const MyForm = jest.fn(()=>null);
   const submitFn = jest.fn()
 
@@ -102,7 +102,7 @@ test('Submit function receives appropriate args',()=>{
   const secondRender = CompnentsLatestCall(MyForm);
 
   expect(submitFn).toHaveBeenCalledTimes(0)
-  secondRender.form.submit();
+  await secondRender.form.submit()
   expect(submitFn).toHaveBeenCalledTimes(1)
   
   // Check both props and model exist
@@ -163,11 +163,11 @@ test('Validation information is available to enhanced component',()=>{
 
   const secondRender = CompnentsLatestCall(MyForm);
   
-  const fieldRes = secondRender.form.validField(['afield'])
+  const fieldRes = secondRender.form.validField(['afield']);
   expect(fieldRes).toBe(true);
 });
 
-test('Validation prevents submission on failure',()=>{
+test('Validation prevents submission on failure',async ()=>{
   const MyForm = jest.fn(()=>null);
   const aFieldValidator = jest.fn(()=>Promise.reject(new Error('Whoops')));
   const submitFn = jest.fn(()=>null);
@@ -188,7 +188,7 @@ test('Validation prevents submission on failure',()=>{
   expect(aFieldValidator).toHaveBeenCalledTimes(1);
 
   const secondRender = CompnentsLatestCall(MyForm);
-  secondRender.form.submit();
+  expect(secondRender.form.submit()).rejects.toThrow('Form has validation errors');
   
   expect(submitFn).toHaveBeenCalledTimes(0);
 });
@@ -196,7 +196,7 @@ test('Validation prevents submission on failure',()=>{
 test('Submission fires validation of not-yet-validated fields and then resubmits once valid',async ()=>{
   const MyForm = jest.fn(()=>null);
   const aFieldValidator = jest.fn(()=>true)
-  const submitFn = jest.fn(()=>null);
+  const submitFn = jest.fn(()=>Promise.resolve());
 
   const EnhancedForm = injectForm(
     props=>({aField:'foo',bField:''}),
@@ -210,11 +210,9 @@ test('Submission fires validation of not-yet-validated fields and then resubmits
   
   const firstRender = CompnentsLatestCall(MyForm);
   expect(aFieldValidator).toHaveBeenCalledTimes(0);
-  firstRender.form.submit();
-
+  await firstRender.form.submit();
   expect(aFieldValidator).toHaveBeenCalledTimes(1);
-  expect(submitFn).toHaveBeenCalledTimes(1);
-
+  expect(submitFn).toHaveBeenCalledTimes(1);  
 });
 
 function CompnentsLatestCall(spiedComponent){
