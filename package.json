@@ -3,9 +3,13 @@
   "name": "@trioxis/react-form",
   "scripts": {
     "test": "cd ./packages/react-form && yarn test",
-    "docs": "(cd ./packages/react-form && yarn start) & (cd ./packages/docs && yarn start)"
+    "docs": "(cd ./packages/react-form && yarn start) & (cd ./packages/docs && yarn start)",
+    "format":"prettier --write ./packages/**/*.js"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "1.9.2"
+  }
 }

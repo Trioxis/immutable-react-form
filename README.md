@@ -31,3 +31,12 @@ Docs are located at `./packages/docs`
 # Run and watch docs...
 yarn docs
 ```
+
+### Code formatting
+
+Code formatting is not yet automated. Code is formatted with [Prettier](https://github.com/prettier/prettier)
+
+```shell
+# Format code
+yarn run format
+```
