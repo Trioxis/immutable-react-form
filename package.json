@@ -3,7 +3,8 @@
   "name": "@trioxis/react-form",
   "scripts": {
     "test": "cd ./packages/react-form && yarn test",
-    "docs": "(cd ./packages/react-form && yarn start) & (cd ./packages/docs && yarn start)",
+    "prepare":"cd ./packages/react-form && yarn prepare",
+    "docs": "yarn prepare --watch | (cd ./packages/docs && yarn start)",
     "format":"prettier --write ./packages/**/*.js"
   },
   "workspaces": [

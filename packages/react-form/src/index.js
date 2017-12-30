@@ -70,11 +70,9 @@ export const injectForm = (
       const validateField$ = new Subject();
       this.submit$ = new Subject();
       this.submitted$ = new Subject();
-      const setFormState$ = new Subject();
 
-      updateState$.subscribe(obj => this.setState(obj));
-
-      setFormState$.subscribe(state => updateState$.next({ state }));
+      updateState$
+      .subscribe(obj => this.setState(obj));
 
       Observable::merge(
         this.setField$::map(([pointer, value]) => [
